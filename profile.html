@@ -34,14 +34,10 @@
               <span class="material-symbols-sharp">insights</span>
               <h3>Analytics</h3>
            </a>
-           <a href="#" class="sideoptions">
-              <span class="material-symbols-sharp">mail_outline</span>
-              <h3>Messages</h3>
-              <span class="msg_count">14</span>
-           </a>
-           <a href="#" class="sideoptions">
+           
+           <a href="budget.html" class="sideoptions">
               <span class="material-symbols-sharp">receipt_long</span>
-              <h3>Products</h3>
+              <h3>Budget</h3>
            </a>
            <a href="#" class="sideoptions">
               <span class="material-symbols-sharp">report_gmailerrorred</span>
@@ -71,25 +67,46 @@
          </div>
       </aside>
 
-    <!-- Main Content -->
-    <main>
-      <h1>Profile Settings</h1>
-      <div class="profile-settings">
 
-        <!-- Display User Information -->
-        <div class="user-info">
-          <h2>User Information</h2>
-          <div class="info">
+      <main>
+        <h1>Profile Settings</h1>
+<div class="profile-settings">
+
+    <!-- Display User Information -->
+    <div class="user-info">
+        <h2>User Information</h2>
+        <div class="info">
             <p><strong>Name:</strong> <span id="userName">Loading...</span></p>
             <p><strong>Email:</strong> <span id="userEmail">Loading...</span></p>
-            <p><strong>Phone Number:</strong> <span id="userPhone">Loading...</span></p>
-          </div>
+            <p><strong>Bio:</strong> <span id="userBio">Loading...</span></p>
+            <button id="editBtn" onclick="enableEdit()">Edit</button>
         </div>
+    </div>
 
-        <!-- Change Password Section -->
-        <div class="change-password">
-          <h2>Change Password</h2>
-          <form id="changePasswordForm">
+    <!-- Update Profile Section -->
+    <div id="updateProfileSection" style="display:none;">
+        <h2>Update Profile</h2>
+        <form id="updateProfileForm" enctype="multipart/form-data">
+            <label for="userNameInput">Name:</label>
+            <input type="text" id="userNameInput" name="userName" required>
+
+            <label for="userEmailInput">Email:</label>
+            <input type="email" id="userEmailInput" name="userEmail" required>
+
+            <label for="userBioInput">Bio:</label>
+            <textarea id="userBioInput" name="userBio"></textarea>
+
+            <label for="profilePictureInput">Profile Picture:</label>
+            <input type="file" id="profilePictureInput" name="profilePicture">
+
+            <button type="submit" class="submit-btn">Update Profile</button>
+        </form>
+    </div><br><br>
+
+    <!-- Change Password Section -->
+    <div class="change-password">
+        <h2>Change Password</h2>
+        <form id="changePasswordForm">
             <label for="current-password">Current Password:</label>
             <input type="password" id="current-password" name="current-password" required>
 
@@ -100,52 +117,95 @@
             <input type="password" id="confirm-password" name="confirm-password" required>
 
             <button type="submit" class="submit-btn">Change Password</button>
-          </form>
-        </div>
+        </form>
+    </div>
+</div>
 
-        <!-- Add New Family Member -->
-        <div class="add-family-member">
-          <h2>Add Family Member</h2>
-          <form id="addFamilyForm">
-            <label for="family-member-name">Family Member Name:</label>
-            <input type="text" id="family-member-name" name="family-member-name" required>
+<script>
+    // Fetch the current user's information on page load
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('get_user_profile.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('userName').textContent = data.name;
+                    document.getElementById('userEmail').textContent = data.email;
+                    document.getElementById('userBio').textContent = data.bio;
+                    document.querySelector('.profile-photo img').src = data.profile_picture; // Set the profile picture dynamically
+                } else {
+                    alert('Error fetching user profile data.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    });
 
-            <label for="family-member-email">Family Member Email:</label>
-            <input type="email" id="family-member-email" name="family-member-email" required>
+    // Function to enable editing the profile
+    function enableEdit() {
+        const name = document.getElementById('userName').textContent;
+        const email = document.getElementById('userEmail').textContent;
+        const bio = document.getElementById('userBio').textContent;
 
-            <button type="submit" class="submit-btn">Add Family Member</button>
-          </form>
-        </div>
-      </div>
-    </main>
-  </div>
+        document.getElementById('userNameInput').value = name;
+        document.getElementById('userEmailInput').value = email;
+        document.getElementById('userBioInput').value = bio;
 
-  <script>
-    // Fetch user data on page load
-    window.onload = function() {
-      fetchUserData();
+        document.getElementById('updateProfileSection').style.display = 'block';
+        document.querySelector('.user-info').style.display = 'none';
     }
 
-    function fetchUserData() {
-      // Make an AJAX request to get user data
-      fetch('get_user_info.php')
+    // Handle form submission for updating the profile
+    document.getElementById('updateProfileForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+
+        fetch('update_profile.php', {
+            method: 'POST',
+            body: formData
+        })
         .then(response => response.json())
         .then(data => {
-          if (data.status === 'success') {
-            // Display user information in the profile
-            document.getElementById('userName').innerText = data.name;
-            document.getElementById('userEmail').innerText = data.email;
-            document.getElementById('userPhone').innerText = data.phone || 'N/A';
-          } else {
-            // Handle error (e.g., user not logged in)
-            alert(data.message);
-          }
+            if (data.status === 'success') {
+                alert('Profile updated successfully!');
+                location.reload();
+            } else {
+                alert('Failed to update profile: ' + data.message);
+            }
         })
-        .catch(error => {
-          console.error('Error fetching user data:', error);
-          alert('Failed to load user data.');
-        });
-    }
-  </script>
+        .catch(error => console.error('Error:', error));
+    });
+
+    // Handle form submission for changing the password
+    document.getElementById('changePasswordForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const currentPassword = document.getElementById('current-password').value;
+        const newPassword = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        const data = {
+            'current-password': currentPassword,
+            'new-password': newPassword,
+            'confirm-password': confirmPassword
+        };
+
+        fetch('changePassword.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Password changed successfully!');
+            } else {
+                alert('Error changing password: ' + data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
 </body>
 </html>

@@ -35,9 +35,9 @@ btnSideList.forEach(btnSide => {
 
 
 
-btnAct.addEventListener('click', () => {
-    square.classList.toggle('hidden1')
-})
+// btnAct.addEventListener('click', () => {
+//     square.classList.toggle('hidden1')
+// })
 
 
 
@@ -93,6 +93,7 @@ function confirmLogout(event) {
 
 //expense
 document.getElementById('expenseForm').addEventListener('submit', function (event) {
+    //console.log('Submitting form...'); // added this
     event.preventDefault(); // Prevent form submission
 
     // Get form data
@@ -104,6 +105,9 @@ document.getElementById('expenseForm').addEventListener('submit', function (even
     // Send data to the backend
     fetch('submit_expense.php', {
         method: 'POST',
+        headers: {// added this
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
         body: new URLSearchParams({
             'name': name,
             'price': price,
@@ -120,8 +124,6 @@ document.getElementById('expenseForm').addEventListener('submit', function (even
 });
 
 
-
-
 //earnings
 document.getElementById('earningsForm').addEventListener('submit', function (event) {
     event.preventDefault(); // Prevent form submission
@@ -132,6 +134,9 @@ document.getElementById('earningsForm').addEventListener('submit', function (eve
     // Send data to the backend
     fetch('submit_earnings.php', {
         method: 'POST',
+        headers: {// added this
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
         body: new URLSearchParams({
             'amount': amount
         })

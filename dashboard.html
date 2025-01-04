@@ -29,7 +29,7 @@
          
           <div class="sidebar">
 
-            <a href="aaaa.html" class="sideoptions">
+            <a href="dashboard.html" class="sideoptions">
               <span class="material-symbols-sharp">grid_view </span>
               <h3>Main Page</h3>
            </a>
@@ -73,52 +73,94 @@
 
       <main>
            <h2>Insights</h2>
-
-           
-
         <div class="insights">
-
-          
-            <div class="Income">
-               <span class="material-symbols-sharp">trending_up</span>
-               <div class="middle">
-
-                 <div class="left">
-                   <h3>Total Balance</h3>
-                   <h1>$5,024</h1>
-                 </div>
-
-               </div>
-               <small>This Month</small>
+          <div class="Income">
+            <span class="material-symbols-sharp">trending_up</span>
+            <div class="middle">
+                <div class="left">
+                    <h3>Total Earnings</h3>
+                    <h1 id="total-earnings">$0.00</h1>
+                </div>
             </div>
-          
-              <div class="spendings">
-                <span class="material-symbols-sharp">stacked_line_chart</span>
-                <div class="middle">
- 
-                  <div class="left">
-                    <h3>Total spendings</h3>
-                    <h1>$1,024</h1>
-                  </div>
-                   
- 
+            <small>This Month</small>
+        </div>
+        
+        <div class="spendings">
+            <span class="material-symbols-sharp">stacked_line_chart</span>
+            <div class="middle">
+                <div class="left">
+                    <h3>Total Spendings</h3>
+                    <h1 id="total-spendings">$0.00</h1>
                 </div>
-                <small>This Month</small>
-             </div>
-            
-               <div class="goal">
-                <span class="material-symbols-sharp">local_mall</span>
-                <div class="middle">
- 
-                  <div class="left">
-                    <h3>Goal: this should change when you hover</h3>
-                    <h1>$5,024/$10,000</h1>
-                  </div>
-
- 
+            </div>
+            <small>This Month</small>
+        </div>
+        
+        <div class="goal">
+            <span class="material-symbols-sharp">local_mall</span>
+            <div class="middle">
+                <div class="left">
+                    <h3>Total Balance</h3>
+                    <h1 id="total-balance">$0.00</h1>
                 </div>
-             </div>
-          
+            </div>
+        </div>
+        
+        <script>
+            // Variables to store total earnings and total spendings
+            let totalEarnings = 0;
+            let totalSpendings = 0;
+        
+            // Function to calculate and update Total Balance
+            function updateTotalBalance() {
+                const totalBalance = totalEarnings - totalSpendings;
+                const formattedBalance = totalBalance.toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: 'USD'
+                });
+                document.getElementById('total-balance').textContent = formattedBalance;
+            }
+        
+            // Fetch total earnings
+            document.addEventListener("DOMContentLoaded", function () {
+                fetch('get_total_earnings.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            totalEarnings = parseFloat(data.total_earning) || 0;
+                            const formattedEarnings = totalEarnings.toLocaleString('en-US', {
+                                style: 'currency',
+                                currency: 'USD'
+                            });
+                            document.getElementById('total-earnings').textContent = formattedEarnings;
+                            updateTotalBalance(); // Update Total Balance after fetching earnings
+                        } else {
+                            console.error('Error fetching total earnings:', data.message);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        
+            // Fetch total spendings
+            document.addEventListener("DOMContentLoaded", function () {
+                fetch('get_total_expenses.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            totalSpendings = parseFloat(data.total_expenses) || 0;
+                            const formattedSpendings = totalSpendings.toLocaleString('en-US', {
+                                style: 'currency',
+                                currency: 'USD'
+                            });
+                            document.getElementById('total-spendings').textContent = formattedSpendings;
+                            updateTotalBalance(); // Update Total Balance after fetching spendings
+                        } else {
+                            console.error('Error fetching total spendings:', data.message);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        </script>
 
         </div>
        
@@ -141,7 +183,7 @@
                     backgroundColor:"#fff",
                     lineTension:0.4,
                     pointRadius:4,
-                    label:"Debt",
+                    label:"Goal",
                     },
                     {
                     data:[13,20,32,43,54,65,67,78,89],
@@ -150,7 +192,7 @@
                     backgroundColor:"#fff",
                     lineTension:0.4,
                     pointRadius:4,
-                    label:"Savings",
+                    label:"Balance",
                     },
                     {
                     data:[11,22,33,44,55,66,77,8,99],
@@ -159,7 +201,7 @@
                     backgroundColor:"#fff",
                     lineTension:0.4,
                     pointRadius:4,
-                    label:"Spendings",
+                    label:"Expenses",
                     },],},
                     options:{
                       legend:{display:true},
@@ -172,23 +214,12 @@
                       });
             </script>
             
-               
-
-          
-            
          </div>
-        
-        
-         
-
        </div>
 
 
-
-
-
       <div class="recent_order">
-         <h2>Recently Paid</h2>
+         <h2>Expenses Activities</h2>
          <table> 
              <thead>
               <tr>
@@ -198,39 +229,43 @@
                 <th>Spender</th>
               </tr>
              </thead>
-              <tbody>
-                 <tr>
-                   <td>Rent</td>
-                   <td>$550</td>
-                   <td>Rent</td>
-                   <td class="warning">Deniz</td>
-                   <td class="primary">Details</td>
-                 </tr>
-                 <tr>
-                  <td>PS5</td>
-                  <td>$607</td>
-                  <td>Entertainment</td>
-                  <td class="warning">Don</td>
-                  <td class="primary">Details</td>
-                </tr>
-                <tr>
-                  <td>Apples</td>
-                  <td>$5</td>
-                  <td>Groceries</td>
-                  <td class="warning">Selin</td>
-                  <td class="primary">Details</td>
-                </tr>
-                <tr>
-                  <td>Netflix Subscription</td>
-                  <td>$15</td>
-                  <td>Entertainment</td>
-                  <td class="warning">Khafid</td>
-                  <td class="primary">Details</td> <!--Make a details window that you can see the notes of the buyer-->
-                </tr>
-              </tbody>
+             <tbody id="expenses-activities">
+              <!-- Dynamic rows will be populated here -->
+          </tbody>
          </table>
-         <a href="#">Show All</a>
       </div>
+      <script>
+        // Fetch and display expenses activities
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('get_expenses_activities.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const tbody = document.getElementById('expenses-activities');
+                        tbody.innerHTML = ''; // Clear any existing content
+                        
+                        // Populate the table with expenses data
+                        data.expenses.forEach(expense => {
+                            const row = `
+                                <tr>
+                                    <td>${expense.name}</td>
+                                    <td>${parseFloat(expense.price).toLocaleString('en-US', {
+                                        style: 'currency',
+                                        currency: 'USD'
+                                    })}</td>
+                                    <td>${expense.category}</td>
+                                    <td class="warning">${expense.spender}</td>
+                                </tr>
+                            `;
+                            tbody.insertAdjacentHTML('beforeend', row);
+                        });
+                    } else {
+                        console.error('Error fetching expenses activities:', data.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    </script>
 
     </main>
       <!------------------
@@ -253,17 +288,46 @@
    </div>
     <div class="profile">
        <div class="info">
-           <p><b>Deniz</b></p>
-           <p>-title of the person-</p>
+           <p><b id="username"></b></p>
+           <p>Member</p>
            <small class="text-muted"></small>
        </div>
-
        
        <div class="profile-photo">
-         <img src="profile-3.jpg" alt=""/>
+        <img id="profile-img" src="profile-3.png" alt=""/>
        </div>
     </div>
     </div>
+
+    <script>
+            // Fetch user data on page load
+      window.onload = function() {
+        fetchUserData();
+      }
+  
+      function fetchUserData() {
+        // Make an AJAX request to get user data
+        fetch('get_user_profile.php')
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'success') {
+                // Get user name and profile picture
+                const username = data.name;
+                const profilePicture = data.profile_picture || 'profile-3.png'; // Default profile if null
+
+                // Update the profile info on the page
+                document.getElementById('username').textContent = username;
+                document.getElementById('profile-img').src = profilePicture;
+            } else {
+                console.error('Error fetching user profile:', data.message);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+      }
+
+      
+  </script>  
+
       <!---->
     <div class="sales-analytics">
         <h2></h2>
@@ -276,7 +340,7 @@
             <!-- Expense Modal -->
             <div id="popupDialog" class="modal hidden">
                 <h3>Enter Expense</h3>
-                <form id="expenseForm" onsubmit="submitExpense(event)">
+                <form id="expenseForm" >
                     <div class="form-group">
                         <input type="text" placeholder="Expense Name" id="expense-name" required>
                     </div>
@@ -311,62 +375,99 @@
             <!-- Earnings Modal -->
             <div id="popupDialog2" class="modal hidden">
                 <h3>Enter New Earnings</h3>
-                <form id="earningsForm" onsubmit="submitEarnings(event)">
-                    <input type="number" placeholder="Enter Earnings Amount" required>
+                <form id="earningsForm">
+                    <input type="number" id ="earnings-amount" placeholder="Enter Earnings Amount" required>
                     <button type="submit" class="btn">Submit Earnings</button>
                 </form>
                 <button onclick="closeFn2()" class="btn">Close</button>
             </div>
         </div>
 
-
-   <div class="sales-analytics">
+ 
+   <div class="sales-analyticss">
      <h2>Family Members</h2>
 
-      <div class="item onlion">
-        <div class="icon">
-            
-        </div>
-        <div class="right_text">
-          <div class="info">
-            <h3>AA</h3>
-            <small class="text-muted">Online</small>
-          </div>
-          <h5 class="danger">Total Spendings:</h5>
-          <h3>$345</h3>
-        </div>
-      </div>
-      <div class="item onlion">
-        <div class="icon">
-            <img src="./images/profile-3.jpg" alt=""/>
-        </div>
-        <div class="right_text">
-          <div class="info">
-            <h3>Samballa</h3>
-            <small class="text-muted">Last seen 2 Hours</small>
-          </div>
-          <h5 class="success">Total Spendings:</h5>
-          <h3>$34</h3>
-        </div>
-      </div>
-      <div class="item onlion">
-        <div class="icon">
-            <img src="./images/profile-2.jpg" alt=""/>
-        </div>
-        <div class="right_text">
-          <div class="info">
-            <h3>Precious</h3>
-            <small class="text-muted">Last seen 7 Hours</small>
-          </div>
-          <h5 class="danger">Total Spendings:</h5>
-          <h3>$39</h3>
-        </div>
-      </div>
-   
+  </div>
+
+  <script>
+  // Function to call the PHP script to update 'last_seen'
+  function updateLastSeen() {
+      fetch('update_last_seen.php', {
+          method: 'POST',  // Using POST method to send data
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.status === 'success') {
+              console.log('Last seen updated successfully');
+          } else {
+              console.error('Error updating last seen:', data.message);
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+      });
+  }
+
+  // Call the function when page loads or user activity is detected
+  document.addEventListener('DOMContentLoaded', function () {
+      updateLastSeen();  // Update last_seen on page load
+  });
+
+  </script>
+
+    <!-- Get user's expenses -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          fetch('get_user_expenses.php')
+              .then(response => response.json())
+              .then(data => {
+                  if (data.status === 'success') {
+                      const familyContainer = document.querySelector('.sales-analyticss');
+
+                      // Clear any existing items
+                      familyContainer.innerHTML = '<h2>Family Members</h2>';
+
+                      data.data.forEach(user => {
+                          const totalSpendings = parseFloat(user.total_expenses).toLocaleString('en-US', {
+                              style: 'currency',
+                              currency: 'USD'
+                          });
+
+                          // Handle last_seen
+                          const lastSeenText = user.last_seen 
+                              ? `Last seen: ${new Date(user.last_seen).toLocaleString()}` 
+                              : "Last seen a while ago";
+
+                          const userItem = `
+                              <div class="item onlion">
+                                  <div class="icon">
+                                      
+                                  </div>
+                                  <div class="right_text">
+                                      <div class="info">
+                                          <h3>${user.name}</h3>
+                                          <small class="text-muted">${lastSeenText}</small>
+                                      </div>
+                                      <h5 class="danger">Total Spendings:</h5>
+                                      <h3>${totalSpendings}</h3>
+                                  </div>
+                              </div>
+                          `;
+
+                          familyContainer.insertAdjacentHTML('beforeend', userItem);
+                      });
+                  } else {
+                      console.error('Error fetching user expenses:', data.message);
+                  }
+              })
+              .catch(error => console.error('Error:', error));
+      });
+    </script>
+      
   
-
-</div>
-
       <div class="item add_product">
             <div>
             <span class="material-symbols-sharp">add</span>
@@ -375,10 +476,7 @@
 </div>
 
 
-   </div>
-
-
-
+  </div>
 
   <script src="dashboard.js"></script>
 </body>

@@ -19,7 +19,72 @@ SET time_zone = "+00:00";
 
 --
 -- Database: `info`
+
+
+
 --
+-- Table structure for table `users`
+--
+
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `last_seen` DATETIME DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `family_members`
+--
+CREATE TABLE `family_members` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `user_id` INT(11) NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `relationship` VARCHAR(255) NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ALTER TABLE family_members
+-- ADD CONSTRAINT fk_user_id
+-- FOREIGN KEY (user_id) REFERENCES users(id)
+-- ON DELETE CASCADE;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `budget`
+--
+CREATE TABLE budget (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    user_id INT(11) NOT NULL,
+    budget_name VARCHAR(255) NOT NULL,
+    monthly_limit DECIMAL(10, 2) NOT NULL,
+    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    savings DECIMAL(10, 2) DEFAULT 0.00,
+    reminder_date DATE DEFAULT NULL,
+    reminder_threshold DECIMAL(10, 2) DEFAULT 0.00,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 
 -- --------------------------------------------------------
 
@@ -30,22 +95,24 @@ SET time_zone = "+00:00";
 CREATE TABLE `earnings` (
   `id` int(11) NOT NULL,
   `amount` decimal(10,2) NOT NULL,
-  `user_id` int(11) NOT NULL
+  `user_id` int(11) NOT NULL,
+  `date_column` DATE NOT NULL DEFAULT CURRENT_DATE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
 
---
--- Table structure for table `expenses`
---
 
 CREATE TABLE `expenses` (
-  `id` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `price` decimal(10,2) NOT NULL,
-  `theme` varchar(100) NOT NULL,
-  `details` text DEFAULT NULL,
-  `user_id` int(11) NOT NULL
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,               -- Expense name
+  `price` decimal(10,2) NOT NULL,             -- Expense price
+  `theme` varchar(100) NOT NULL,              -- Theme (category)
+  `details` text DEFAULT NULL,                -- Optional details about the expense
+  `date_column` DATE NOT NULL DEFAULT CURRENT_DATE, -- Date of the expense
+  `user_id` int(11) DEFAULT NULL,             -- Direct link to the user for personal expenses
+  `member_id` int(11) DEFAULT NULL,           -- Link to a specific family member for their expenses
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE, -- Maintain link with users table
+  FOREIGN KEY (`member_id`) REFERENCES `family_members` (`id`) ON DELETE CASCADE -- Link with family members table
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -63,31 +130,14 @@ CREATE TABLE `profiles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
-
---
--- Table structure for table `users`
---
-
-CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 --
 -- Dumping data for table `users`
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `created_at`) VALUES
-(1, 'john', 'john@yahoo.com', '$2y$10$8bVO8h7QJsZ5U1EEJGB5W.zoB/jH6Ongk7LG7gdcH0bzIF1ImdRfO', '2024-12-28 21:14:45'),
-(3, 'john', 'john1@yahoo.com', '$2y$10$brYAganZDpuUeb6V9kTrWumNrVG3UQvnQRImsJPoGEfZ8UxiOI2pS', '2024-12-28 21:43:12'),
-(4, 'john', 'john123@yahoo.com', '$2y$10$qQCuao3nBZcvMYBc3LJU9eEI3DJQk1mXqHPKYbjFQWO5VaW7Nsel2', '2024-12-28 21:46:38'),
-(5, 'papa', 'papa@yahoo.com', '$2y$10$PrMpj4.0M6RThb6yclGYS.M/EmxiZWv90MxLpmu3/Ms8hUKa/vFTK', '2024-12-28 22:40:30'),
-(6, 'hey', 'hey@yahoo.com', '$2y$10$qMd7BX1dhgpvaxYGFVbntOu0s9R/W8WzTiFBiWCnPvXK9I2fM6IJu', '2024-12-28 22:41:07'),
-(7, 'man', 'man1@yahoo.com', '$2y$10$Rp7m/qO1CGTKsNIkVZTcluh9/wVf1egpVPdqFqZSnf5xkTQgYWAAy', '2024-12-28 23:46:19'),
-(8, 'jesse', 'jesse@yahoo.com', '$2y$10$6hi7Pid0vdolTRhKglrr0ObwdB8v5cWEGCcgWvR70ZqKWuI.3UpVi', '2024-12-28 23:57:07');
+(1, 'John', 'john@yahoo.com', '$2y$10$8bVO8h7QJsZ5U1EEJGB5W.zoB/jH6Ongk7LG7gdcH0bzIF1ImdRfO', '2024-12-28 21:14:45'),
+(3, 'Chibuzor', 'john1@yahoo.com', '$2y$10$brYAganZDpuUeb6V9kTrWumNrVG3UQvnQRImsJPoGEfZ8UxiOI2pS', '2024-12-28 21:43:12'),
+(4, 'Asa', 'john123@yahoo.com', '$2y$10$qQCuao3nBZcvMYBc3LJU9eEI3DJQk1mXqHPKYbjFQWO5VaW7Nsel2', '2024-12-28 21:46:38');
 
 --
 -- Indexes for dumped tables
@@ -103,9 +153,9 @@ ALTER TABLE `earnings`
 --
 -- Indexes for table `expenses`
 --
-ALTER TABLE `expenses`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
+-- ALTER TABLE `expenses`
+--   ADD PRIMARY KEY (`id`), ---- The table creation above for Expenses takes care of indexing
+--   ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `profiles`
@@ -113,13 +163,6 @@ ALTER TABLE `expenses`
 ALTER TABLE `profiles`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
-
---
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -143,11 +186,7 @@ ALTER TABLE `expenses`
 ALTER TABLE `profiles`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
 
 --
 -- Constraints for dumped tables
@@ -162,8 +201,8 @@ ALTER TABLE `earnings`
 --
 -- Constraints for table `expenses`
 --
-ALTER TABLE `expenses`
-  ADD CONSTRAINT `expenses_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+-- ALTER TABLE `expenses`
+--   ADD CONSTRAINT `expenses_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
 -- Constraints for table `profiles`
